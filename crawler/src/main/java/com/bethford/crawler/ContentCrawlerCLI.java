@@ -7,6 +7,8 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Cleaner;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
 public class ContentCrawlerCLI {
@@ -14,6 +16,7 @@ public class ContentCrawlerCLI {
 	private List<String> allUrls;
 	private FileReader fileReader;
 	private CsvWriter csvWriter;
+	private Cleaner cleaner;
 	private File inputFile = new File("demo-input.txt");
 	private String outputFile = "output.csv";
 	private String[] lineOfContent;
@@ -23,6 +26,7 @@ public class ContentCrawlerCLI {
 		this.allUrls = new ArrayList<String>();
 		this.fileReader = new FileReader();
 		this.csvWriter = new CsvWriter();
+		this.cleaner = new Cleaner(Whitelist.none().addTags("body","div","p"));
 		this.allContent = new ArrayList<String[]>();
 	}
 
@@ -38,7 +42,14 @@ public class ContentCrawlerCLI {
 				
 				formatSiteLinksAndAddToString(formattedLinks, doc);
 				
-				lineOfContent = new String[] {url, doc.select("title").text(), doc.body().text(), formattedLinks};
+				
+				
+//				doc.select("footer").remove();
+//				doc.select("header").remove();
+//				 doc.body().select("p").text()
+				doc = cleaner.clean(doc);
+				
+				lineOfContent = new String[] {url, doc.select("title").text(), doc.body().toString(), formattedLinks};
 				allContent.add(lineOfContent);
 				
 			} catch (Exception e) {
@@ -54,7 +65,6 @@ public class ContentCrawlerCLI {
 		for(Element link : allLinks) {
 			formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
 		}
-		System.out.print(formattedLinks);
 	}
 	
 	private void setFileNames(String inputFileName, String outputFileName) {
