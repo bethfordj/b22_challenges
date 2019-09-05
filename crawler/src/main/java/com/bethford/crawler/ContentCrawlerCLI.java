@@ -6,17 +6,23 @@ import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 public class ContentCrawlerCLI {
 
 	private List<String> allUrls;
 	private FileReader fileReader;
+	private CsvWriter csvWriter;
 	private File inputFile = new File("demo-input.txt");
 	private File outputFile;
+	private String[] lineOfContent;
+	private List<String[]> allContent;
 
 	private ContentCrawlerCLI() {
 		this.allUrls = new ArrayList<String>();
 		this.fileReader = new FileReader();
+		this.csvWriter = new CsvWriter();
+		this.allContent = new ArrayList<String[]>();
 	}
 
 	private void run() {
@@ -27,7 +33,16 @@ public class ContentCrawlerCLI {
 
 			try {
 				Document doc = Jsoup.connect(url).get();
-				System.out.print(doc);
+				String formattedLinks = "";
+				
+				while(doc.selectFirst("a") != null) {
+					Element link = doc.selectFirst("a");
+					formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
+					doc.selectFirst("a").remove();
+				}
+				
+				lineOfContent = new String[] {url, doc.select("title").text(), doc.body().text(), formattedLinks};
+				allContent.add(lineOfContent);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
