@@ -7,6 +7,7 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class ContentCrawlerCLI {
 
@@ -14,7 +15,7 @@ public class ContentCrawlerCLI {
 	private FileReader fileReader;
 	private CsvWriter csvWriter;
 	private File inputFile = new File("demo-input.txt");
-	private File outputFile;
+	private String outputFile = "output.csv";
 	private String[] lineOfContent;
 	private List<String[]> allContent;
 
@@ -35,27 +36,35 @@ public class ContentCrawlerCLI {
 				Document doc = Jsoup.connect(url).get();
 				String formattedLinks = "";
 				
-				while(doc.selectFirst("a") != null) {
-					Element link = doc.selectFirst("a");
-					formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
-					doc.selectFirst("a").remove();
-				}
+				formatSiteLinksAndAddToString(formattedLinks, doc);
 				
 				lineOfContent = new String[] {url, doc.select("title").text(), doc.body().text(), formattedLinks};
 				allContent.add(lineOfContent);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		csvWriter.writeToCSV(outputFile, allContent);
 
 	}
 
-	private void getAndSetFileNames() {
-
+	private void formatSiteLinksAndAddToString(String formattedLinks, Document doc) {
+		Elements allLinks = doc.select("a");
+		for(Element link : allLinks) {
+			formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
+		}
+		System.out.print(formattedLinks);
+	}
+	
+	private void setFileNames(String inputFileName, String outputFileName) {
+		inputFile = new File(inputFileName);
+		outputFile = outputFileName;
 	}
 
 	public static void main(String[] args) {
 		ContentCrawlerCLI conCrawler = new ContentCrawlerCLI();
+//		conCrawler.setFileNames(args[0], args[1]);
 		conCrawler.run();
 
 	}

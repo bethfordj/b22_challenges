@@ -13,7 +13,7 @@ public class CsvWriter {
 
 	public void writeToCSV(String outputFile, List<String[]> content) {
 
-		try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile));  
+		try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile));
 
 				CSVPrinter csvPrinter = new CSVPrinter(writer,
 						CSVFormat.DEFAULT.withHeader("URL", "Title", "Body", "Links found"));) {
@@ -23,10 +23,9 @@ public class CsvWriter {
 
 			csvPrinter.flush();
 		}
-	
+
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 }
-
