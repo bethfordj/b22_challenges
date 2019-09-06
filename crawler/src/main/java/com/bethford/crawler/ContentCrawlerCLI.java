@@ -26,7 +26,7 @@ public class ContentCrawlerCLI {
 		this.allUrls = new ArrayList<String>();
 		this.fileReader = new FileReader();
 		this.csvWriter = new CsvWriter();
-		this.cleaner = new Cleaner(Whitelist.none().addTags("body","div","p"));
+		this.cleaner = new Cleaner(Whitelist.basic());
 		this.allContent = new ArrayList<String[]>();
 	}
 
@@ -39,19 +39,21 @@ public class ContentCrawlerCLI {
 			try {
 				Document doc = Jsoup.connect(url).get();
 				String formattedLinks = "";
-				
+
 				formatSiteLinksAndAddToString(formattedLinks, doc);
-				
-				
-				
-//				doc.select("footer").remove();
-//				doc.select("header").remove();
-//				 doc.body().select("p").text()
+
+				doc.select("header").remove();
+				doc.select("aside").remove();
+				doc.select("footer").remove();
+				doc.select("#footer").remove();
+				doc.select(".sidebar").remove();
+
+
 				doc = cleaner.clean(doc);
-				
-				lineOfContent = new String[] {url, doc.select("title").text(), doc.body().toString(), formattedLinks};
+
+				lineOfContent = new String[] { url, doc.select("title").text(), doc.body().toString(), formattedLinks };
 				allContent.add(lineOfContent);
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -62,11 +64,11 @@ public class ContentCrawlerCLI {
 
 	private void formatSiteLinksAndAddToString(String formattedLinks, Document doc) {
 		Elements allLinks = doc.select("a");
-		for(Element link : allLinks) {
+		for (Element link : allLinks) {
 			formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
 		}
 	}
-	
+
 	private void setFileNames(String inputFileName, String outputFileName) {
 		inputFile = new File(inputFileName);
 		outputFile = outputFileName;
