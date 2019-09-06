@@ -42,12 +42,7 @@ public class ContentCrawlerCLI {
 
 				formatSiteLinksAndAddToString(formattedLinks, doc);
 
-				doc.select("header").remove();
-				doc.select("aside").remove();
-				doc.select("footer").remove();
-				doc.select("#footer").remove();
-				doc.select(".sidebar").remove();
-
+				doc = removeHeaderFooterAndSidebar(doc);
 
 				doc = cleaner.clean(doc);
 
@@ -67,6 +62,31 @@ public class ContentCrawlerCLI {
 		for (Element link : allLinks) {
 			formattedLinks += "[" + link.text() + "](" + link.attr("href") + ")";
 		}
+	}
+	
+	private Document removeHeaderFooterAndSidebar(Document doc) {
+		doc.select("header").remove();
+		doc.select("aside").remove();
+		doc.select("footer").remove();
+		doc.select("#footer").remove();
+		Elements elements = doc.body().select("div");
+
+		for (Element element : elements) {
+
+			if (element.className().contains("sidebar") || element.className().contains("footer") || element.className().contains("comment")
+					|| element.className().contains("related") || element.id().contains("sidebar")
+					|| element.id().contains("footer") || element.id().contains("related") || element.id().contains("comment")) {
+				Elements children = element.children();
+				for (Element child : children) {
+					if (child.className().contains("sidebar") || child.className().contains("footer") || child.className().contains("comment")
+							|| child.className().contains("related") || child.id().contains("sidebar")
+							|| child.id().contains("footer") || child.id().contains("related") || child.id().contains("comment")) {
+						child.remove();
+					}
+				}
+			}
+		}
+		return doc;
 	}
 
 	private void setFileNames(String inputFileName, String outputFileName) {
