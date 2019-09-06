@@ -11,14 +11,18 @@ import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
+/* This class takes the content from the websites listed in a text file, removes the site's shared information and inline styling, and
+ * prints the information to a csv file in the order URL, Title, Body, and Links found.
+ */
+
 public class ContentCrawlerCLI {
 
 	private List<String> allUrls;
 	private FileReader fileReader;
 	private CsvWriter csvWriter;
 	private Cleaner cleaner;
-	private File inputFile = new File("demo-input.txt");
-	private String outputFile = "output.csv";
+	private File inputFile;
+	private String outputFile;
 	private String[] lineOfContent;
 	private List<String[]> allContent;
 
@@ -30,6 +34,9 @@ public class ContentCrawlerCLI {
 		this.allContent = new ArrayList<String[]>();
 	}
 
+	/* Creates a connection with each site, collects and formats each site's links, removes the header / footer / sidebar from each site's html,
+	 * uses a cleaner to remove inline styles, and prints to a csv file.
+	 */
 	private void run() {
 
 		allUrls = fileReader.scanFile(inputFile);
@@ -57,6 +64,7 @@ public class ContentCrawlerCLI {
 
 	}
 
+	/* Takes each link from the list and puts both the url and the visible text into the desired format */
 	private void formatSiteLinksAndAddToString(String formattedLinks, Document doc) {
 		Elements allLinks = doc.select("a");
 		for (Element link : allLinks) {
@@ -64,6 +72,7 @@ public class ContentCrawlerCLI {
 		}
 	}
 	
+	/* Searches the html for specific tags, classes, and ids and removes elements that containt them */
 	private Document removeHeaderFooterAndSidebar(Document doc) {
 		doc.select("header").remove();
 		doc.select("aside").remove();
@@ -89,14 +98,18 @@ public class ContentCrawlerCLI {
 		return doc;
 	}
 
+	/* Takes the file paths and assigns them to the variables used for the input file and output file */
 	private void setFileNames(String inputFileName, String outputFileName) {
 		inputFile = new File(inputFileName);
 		outputFile = outputFileName;
 	}
+	
 
+			
+	/* Takes the input file and output file as terminal arguments and assigns them before running the main method (run()) */
 	public static void main(String[] args) {
 		ContentCrawlerCLI conCrawler = new ContentCrawlerCLI();
-//		conCrawler.setFileNames(args[0], args[1]);
+		conCrawler.setFileNames(args[0], args[1]);
 		conCrawler.run();
 
 	}

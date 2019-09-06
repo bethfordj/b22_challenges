@@ -10,6 +10,10 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 public class CsvWriter {
+	
+	/* This class takes the path and/or name of the output file as a string and the content to be written as a list of Strings
+	 * and prints the content to the output file in comma-separated format (for CSV).
+	 */
 
 	public void writeToCSV(String outputFile, List<String[]> content) {
 
